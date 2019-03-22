@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Select Demo</title>
+    <style>
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 12px;
+        height: 300px;
+        width: 500px;
+        margin: 200px auto;
+        box-shadow: 0 0 10px rgb(71, 64, 64);
+        background-color: rgb(244, 245, 240);
+      }
+      h1 {
+        color:coral;
+        font-size: 30px
+      }
+      .input {
+        height: 30px;
+        width: 400px;
+        line-height: 30px;
+        outline: none;
+        cursor: pointer;
+        border: 1px solid skyblue;
+        padding-left: 15px
+      }
+      .option {
+        width: 417px;
+        background-color: #fff;
+        display: none
+      }
+      .btn {
+        transform: rotate(-90deg);
+        display: block;
+      }
+      li{
+        list-style-type:none;
+        padding: 5px 0;
+        padding-left: 15px
+      }
+      li:hover {
+        background-color: skyblue;
+        cursor: pointer;
+      }
+      ul {
+        padding-left: 0px;
+        margin: 0;
+        max-height: 150px;
+        min-height: 100px;
+        overflow-y: auto;
+      }
+      .empty,.loading {
+        display: none;
+        padding: 15px 15px
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1 class="title">Select Demo</h1>
+      <div class="wrapper">
+          <div class="select">
+            <input type="text" class="input" placeholder="单击选择或输入进行搜索"></input>
+          </div>
+          <div class="option">
+            <ul class="options-container">
+            </ul>
+            <div class="empty">No Match</div>
+            <div class="loading">正在加载网络数据...</div>
+          </div>
+      </div>
+      <script type="text/javascript">
+      
+      //获取dom节点
+      const option = document.querySelector('.option')
+      const options_container = document.querySelector('.options-container')
+      const empty = document.querySelector('.empty')
+      const input = document.querySelector('.input')
+      const loadmore = document.querySelector('.loadmore')
+      const loading = document.querySelector('.loading')
+
+      // 控制渲染的state
+      let state = {
+        isShowOptions: false,
+        isloading: false,
+        options:[
+          {name: '李袁堞', id: 1},
+          {name: '李雪琴', id: 2},
+          {name: '吴彦祖', id: 3},
+          {name: '吴亦凡', id: 4},
+          {name: '沈月', id: 5},
+          {name: '吴孟达', id: 6},
+          {name: '陈奕迅', id: 7},
+          {name: '杨千嬅', id: 8},
+          {name: '库兹马', id: 9},
+          {name: '欧文', id: 10}
+        ]
+      }
+
+      // 控制options显示
+      function changeOptionState (isShowOptions) {
+        let display = isShowOptions ? 'block' : 'none'
+        option.style.display = display
+      }
+
+      // 处理输入框点击事件
+      function handleInputClick () {
+        state.isShowOptions = !state.isShowOptions
+        console.log('isShowOptions:',state.isShowOptions)
+        changeOptionState(state.isShowOptions)
+      }
+      
+      // 监听输入框点击事件
+      input.addEventListener('click', handleInputClick)
+
+      // 处理OPTIONS点击事件
+      function handleOptionClick (e) {
+        console.log ('22222222',e.target.innerHTML)
+        input.value = e.target.innerHTML
+        setTimeout(handleInputClick,100)
+      }
+
+      // 监听options点击事件
+      option.addEventListener('click', handleOptionClick)
+
+      // 控制动态渲染options
+      function renderOptions (options, prefixion) {
+        if (options.length > 0) {
+          console.log('render执行',options)
+          options_container.style.display = 'block'
+          empty.style.display = 'none'
+          let inner
+          if (prefixion) {
+            for (let item of options) {
+              inner += "<li>" + "<span style='color: red'>" + prefixion + "</span>" + item.name.replace(prefixion, '') + "</li>"
+              options_container.innerHTML = inner
+              options_container.removeChild(options_container.firstChild)
+            }
+          } else {
+            for (let item of options) {
+              inner += "<li>" + item.name + "</li>"
+              options_container.innerHTML = inner
+              options_container.removeChild(options_container.firstChild)
+              }
+          }
+        } else {
+          options_container.style.display = 'none'
+          empty.style.display = 'block'
+          loadAsyncData ()
+        }
+      }
+
+      // 初始化渲染
+      renderOptions(state.options)
+
+      // 处理input输入事件
+      function onValueChange () {
+        if (!state.isShowOptions) {
+          state.isShowOptions = !state.isShowOptions
+          console.log('isShowOptions:',state.isShowOptions)
+          changeOptionState(state.isShowOptions)
+        }
+        let value = input.value
+        console.log('匹配前缀：',value)
+        let RegExpObject = new RegExp('^' + value)
+        const newOptions = state.options.filter(x => {
+          return RegExpObject.test(x.name)
+        })
+        console.log('newOptions:', newOptions)
+        renderOptions(newOptions, value)
+      }
+
+      // 监听input输入事件
+      input.addEventListener('input', onValueChange)
+
+      // 模拟获取网络数据
+      function getAsyncData () {
+        return [
+          {name: 'xxx', id: 1},
+          {name: 'xxxx', id: 2},
+          {name: 'xxxxx', id: 3},
+          {name: 'xxxxxx', id: 4},
+          {name: 'xxxxxxx', id: 5},
+          {name: 'xxxxxxxx', id: 6},
+          {name: 'xxxxxxxxx', id: 7},
+          {name: 'xxxxxxxxxx', id: 8},
+          {name: 'xxxxxxxxxxx', id: 9},
+          {name: 'xxxxxxxxxxxx', id: 10}
+        ]
+      }
+
+      // 控制加载信息显示
+      function showLoading (isShow) {
+        if (isShow) {
+          loading.style.display = 'block'
+        } else {
+          loading.style.display = 'none'
+        }
+      }
+
+      // 加载事件回调
+      function loadAsyncData () {
+        isLoading = true
+        showLoading(isLoading)
+        setTimeout(() => {
+          isLoading = false
+          showLoading(isLoading)
+          const newOptions = getAsyncData()
+          renderOptions(newOptions)
+        }, 3000)
+      }
+      </script>
+    </div>
+  </body>
+</html>
