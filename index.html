@@ -57,6 +57,10 @@
         display: none;
         padding: 15px 15px
       }
+      .loadmore {
+        padding-left: 5px;
+        color: skyblue
+      }
 
     </style>
   </head>
@@ -71,15 +75,14 @@
           <div class="option">
             <ul class="options-container">
             </ul>
-            <div class="empty">No Match</div>
+            <div class="empty">No Match<a class="loadmore">搜索</a></div>
             <div class="loading">正在加载网络数据...</div>
           </div>
       </div>
       <script type="text/javascript">
-      
       //获取dom节点
       const option = document.querySelector('.option')
-      const options_container = document.querySelector('.options-container')
+      const optionsContainer = document.querySelector('.options-container')
       const empty = document.querySelector('.empty')
       const input = document.querySelector('.input')
       const loadmore = document.querySelector('.loadmore')
@@ -89,70 +92,75 @@
       let state = {
         isShowOptions: false,
         isloading: false,
-        options:[
-          {name: '李袁堞', id: 1},
-          {name: '李雪琴', id: 2},
-          {name: '吴彦祖', id: 3},
-          {name: '吴亦凡', id: 4},
-          {name: '沈月', id: 5},
-          {name: '吴孟达', id: 6},
-          {name: '陈奕迅', id: 7},
-          {name: '杨千嬅', id: 8},
-          {name: '库兹马', id: 9},
-          {name: '欧文', id: 10}
+        options: [
+          { name: '李袁堞', id: 1 },
+          { name: '李雪琴', id: 2 },
+          { name: '吴彦祖', id: 3 },
+          { name: '吴亦凡', id: 4 },
+          { name: '沈月', id: 5 },
+          { name: '吴孟达', id: 6 },
+          { name: '陈奕迅', id: 7 },
+          { name: '杨千嬅', id: 8 },
+          { name: '库兹马', id: 9 },
+          { name: '欧文', id: 10 }
         ]
       }
 
       // 控制options显示
-      function changeOptionState (isShowOptions) {
+      function changeOptionState(isShowOptions) {
         let display = isShowOptions ? 'block' : 'none'
         option.style.display = display
       }
 
       // 处理输入框点击事件
-      function handleInputClick () {
+      function handleInputClick() {
         state.isShowOptions = !state.isShowOptions
-        console.log('isShowOptions:',state.isShowOptions)
+        console.log('isShowOptions:', state.isShowOptions)
         changeOptionState(state.isShowOptions)
       }
-      
+
       // 监听输入框点击事件
       input.addEventListener('click', handleInputClick)
 
       // 处理OPTIONS点击事件
-      function handleOptionClick (e) {
-        console.log ('22222222',e.target.innerHTML)
+      function handleOptionClick(e) {
+        console.log('22222222', e.target.nodeName)
+        if (e.target.nodeName === 'A') {
+          loadAsyncData()
+          return
+        }
         input.value = e.target.innerHTML
-        setTimeout(handleInputClick,100)
+        setTimeout(handleInputClick, 100)
       }
 
       // 监听options点击事件
       option.addEventListener('click', handleOptionClick)
 
       // 控制动态渲染options
-      function renderOptions (options, prefixion) {
+      function renderOptions(options, prefixion) {
         if (options.length > 0) {
-          console.log('render执行',options)
-          options_container.style.display = 'block'
+          console.log('render执行', options)
+          optionsContainer.style.display = 'block'
           empty.style.display = 'none'
           let inner
           if (prefixion) {
             for (let item of options) {
-              inner += "<li>" + "<span style='color: red'>" + prefixion + "</span>" + item.name.replace(prefixion, '') + "</li>"
-              options_container.innerHTML = inner
-              options_container.removeChild(options_container.firstChild)
+              inner +=
+                '<li>' + "<span style='color: red'>" + prefixion + '</span>' + item.name.replace(prefixion, '') + '</li>'
+              optionsContainer.innerHTML = inner
+              optionsContainer.removeChild(optionsContainer.firstChild)
             }
           } else {
             for (let item of options) {
-              inner += "<li>" + item.name + "</li>"
-              options_container.innerHTML = inner
-              options_container.removeChild(options_container.firstChild)
-              }
+              inner += '<li>' + item.name + '</li>'
+              optionsContainer.innerHTML = inner
+              optionsContainer.removeChild(optionsContainer.firstChild)
+            }
           }
         } else {
-          options_container.style.display = 'none'
+          optionsContainer.style.display = 'none'
           empty.style.display = 'block'
-          loadAsyncData ()
+          // loadAsyncData ()
         }
       }
 
@@ -160,17 +168,16 @@
       renderOptions(state.options)
 
       // 处理input输入事件
-      function onValueChange () {
+      function onValueChange() {
         if (!state.isShowOptions) {
           state.isShowOptions = !state.isShowOptions
-          console.log('isShowOptions:',state.isShowOptions)
+          console.log('isShowOptions:', state.isShowOptions)
           changeOptionState(state.isShowOptions)
         }
         let value = input.value
-        console.log('匹配前缀：',value)
-        let RegExpObject = new RegExp('^' + value)
+        console.log('匹配前缀：', value)
         const newOptions = state.options.filter(x => {
-          return RegExpObject.test(x.name)
+          return x.name.startsWith(value)
         })
         console.log('newOptions:', newOptions)
         renderOptions(newOptions, value)
@@ -180,23 +187,23 @@
       input.addEventListener('input', onValueChange)
 
       // 模拟获取网络数据
-      function getAsyncData () {
+      function getAsyncData() {
         return [
-          {name: 'xxx', id: 1},
-          {name: 'xxxx', id: 2},
-          {name: 'xxxxx', id: 3},
-          {name: 'xxxxxx', id: 4},
-          {name: 'xxxxxxx', id: 5},
-          {name: 'xxxxxxxx', id: 6},
-          {name: 'xxxxxxxxx', id: 7},
-          {name: 'xxxxxxxxxx', id: 8},
-          {name: 'xxxxxxxxxxx', id: 9},
-          {name: 'xxxxxxxxxxxx', id: 10}
+          { name: 'xxx', id: 1 },
+          { name: 'xxxx', id: 2 },
+          { name: 'xxxxx', id: 3 },
+          { name: 'xxxxxx', id: 4 },
+          { name: 'xxxxxxx', id: 5 },
+          { name: 'xxxxxxxx', id: 6 },
+          { name: 'xxxxxxxxx', id: 7 },
+          { name: 'xxxxxxxxxx', id: 8 },
+          { name: 'xxxxxxxxxxx', id: 9 },
+          { name: 'xxxxxxxxxxxx', id: 10 }
         ]
       }
 
       // 控制加载信息显示
-      function showLoading (isShow) {
+      function showLoading(isShow) {
         if (isShow) {
           loading.style.display = 'block'
         } else {
@@ -205,7 +212,7 @@
       }
 
       // 加载事件回调
-      function loadAsyncData () {
+      function loadAsyncData() {
         isLoading = true
         showLoading(isLoading)
         setTimeout(() => {
@@ -213,8 +220,9 @@
           showLoading(isLoading)
           const newOptions = getAsyncData()
           renderOptions(newOptions)
-        }, 3000)
+        }, 2000)
       }
+
       </script>
     </div>
   </body>
